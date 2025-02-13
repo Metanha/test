@@ -9,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import WebDriverException
 import requests
 from requests import get
 
@@ -116,24 +117,23 @@ if menu == "📊 Scraper des données":
         url="https://www.expat-dakar.com/tv-home-cinema?page=1"
         num_pages = st.sidebar.slider("Nombre de pages à scraper :", 1, 12, 1)
     
-    if lance_scrap:    
-        if lance_scrap:         
-            if categorie == "Ordinateurs":
-                df = scrape_ordi(url)
-                if not df.empty:
-                    st.session_state["scraped_data"] = df
-                    st.dataframe(df)
-                else:
-                    st.warning("Aucune donnée trouvée")
-            elif categorie=="Téléphones":
-                print()
-                #df=scrape_dynamic_site(url)
-                #load_(df,"Téléphones")
-            elif categorie=="Télévision":
-                print()
-                #df=scrape_dynamic_site(url)
-                #load_(df,"Télévision")
-        
+    if lance_scrap:            
+        if categorie == "Ordinateurs":
+            df = scrape_ordi(url)
+            if not df.empty:
+                st.session_state["scraped_data"] = df
+                st.dataframe(df)
+            else:
+                st.warning("Aucune donnée trouvée")
+        elif categorie=="Téléphones":
+            print()
+            #df=scrape_dynamic_site(url)
+            #load_(df,"Téléphones")
+        elif categorie=="Télévision":
+            print()
+            #df=scrape_dynamic_site(url)
+            #load_(df,"Télévision")
+    
      #Telecharger les données scrappées  
     if telecharger_donne:
         csv = df.to_csv(path_or_buf="data/donnees_scrapes.csv",index=False).encode('utf-8')
