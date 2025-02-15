@@ -3,7 +3,6 @@ streamlit==1.27.2
 
 # Manipulation des données
 pandas==2.0.3
-numpy==1.24.3
 
 # Scraping HTML statique
 requests==2.31.0
