@@ -18,8 +18,8 @@ os.system("apt update")
 os.system("apt install -y chromium-chromedriver")
 
 # Définir les chemins d'accès pour Selenium
-os.environ["CHROME_BINARY"] ="/home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver"
-os.environ["webdriver.chrome.driver"] ="/home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver"
+os.environ["CHROME_BINARY"] ="./chromedriver"
+os.environ["webdriver.chrome.driver"] ="./chromedriver"
 
 def get_driver():
     chrome_options = Options()
