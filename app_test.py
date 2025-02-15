@@ -30,10 +30,12 @@ def get_driver():
     chrome_options.add_argument("--remote-debugging-port=9222")
     
     # Solution cloud-compatible
+    print("avant")
     try:
         return webdriver.Chrome(
             service=Service(ChromeDriverManager().install()),
             options=chrome_options
+            print("entre")
         )
     except WebDriverException as e:
         st.error(f"Erreur ChromeDriver: {str(e)}")
@@ -119,7 +121,9 @@ if menu == "📊 Scraper des données":
     
     if lance_scrap:            
         if categorie == "Ordinateurs":
-            df = scrape_ordi(url)
+            print("oui")
+            try:
+                df = scrape_ordi(url)
             if not df.empty:
                 st.session_state["scraped_data"] = df
                 st.dataframe(df)
