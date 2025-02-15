@@ -13,7 +13,7 @@ from selenium.common.exceptions import WebDriverException
 import requests
 from requests import get
 
-chmod +x /home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver
+#chmod +x /home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver
 
 # Supprimer l'ancienne version (au cas où)
 os.system("rm -rf /home/appuser/.wdm/drivers/chromedriver/")
