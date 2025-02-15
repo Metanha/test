@@ -1,26 +1,26 @@
-# Interface web
-streamlit
+# Streamlit (interface)
+streamlit==1.27.2
 
 # Manipulation des données
-pandas
-numpy
+pandas==2.0.3
+numpy==1.24.3
 
 # Scraping HTML statique
-requests
-beautifulsoup4
-lxml
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
 
 # Scraping avancé avec Selenium
-selenium
-webdriver-manager
+selenium==4.15.2
+webdriver-manager==4.0.1
 
-# Scraping JavaScript (alternative à Selenium)
-requests-html
-playwright
+# Scraping de sites avec JavaScript
+playwright==1.39.0
+requests-html==0.10.0
 
-# Scraping de masse
-scrapy
+# Visualisation des données
+matplotlib==3.7.1
+plotly==5.17.0
 
-# API et JSON
-fastapi
-httpx
+# Gestion du WebDriver
+chromedriver-autoinstaller==0.5.0
