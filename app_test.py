@@ -30,6 +30,7 @@ st.write("🔎 Vérification de Selenium et WebDriver...")
 
 try:
     service = Service(ChromeDriverManager().install())
+    print("installer")
     driver = webdriver.Chrome(service=service)
     st.success("✅ WebDriver fonctionne !")
     driver.quit()
