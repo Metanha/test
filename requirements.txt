@@ -24,4 +24,7 @@ plotly==5.17.0
 # Gestion du WebDriver
 chromedriver-autoinstaller==0.5.0
 
-pip install --upgrade --force-reinstall "numpy<2"
+pip uninstall numpy -y
+pip cache purge
+pip install numpy==1.24.3 --no-cache-dir
+
