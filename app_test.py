@@ -40,6 +40,7 @@ def get_driver():
         print("entre")
     except WebDriverException as e:
         st.error(f"Erreur ChromeDriver: {str(e)}")
+        print("nentre pas")
         return None
     
     #service = Service(ChromeDriverManager().install())
