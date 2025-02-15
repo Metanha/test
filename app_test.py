@@ -13,13 +13,28 @@ from selenium.common.exceptions import WebDriverException
 import requests
 from requests import get
 
+chmod +x /home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver
+
+# Supprimer l'ancienne version (au cas où)
+os.system("rm -rf /home/appuser/.wdm/drivers/chromedriver/")
+
 # Installer Chromium et ChromeDriver
 os.system("apt update")
 os.system("apt install -y chromium-chromedriver")
 
 # Définir les chemins d'accès pour Selenium
-os.environ["CHROME_BINARY"] ="./chromedriver"
-os.environ["webdriver.chrome.driver"] ="./chromedriver"
+#os.environ["CHROME_BINARY"] ="./chromedriver"
+#os.environ["webdriver.chrome.driver"] ="./chromedriver"
+
+st.write("🔎 Vérification de Selenium et WebDriver...")
+
+try:
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
+    st.success("✅ WebDriver fonctionne !")
+    driver.quit()
+except Exception as e:
+    st.error(f"🚨 Erreur WebDriver : {e}")
 
 def get_driver():
     chrome_options = Options()
