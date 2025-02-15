@@ -130,6 +130,8 @@ if menu == "📊 Scraper des données":
                     st.dataframe(df)
                 else:
                     st.warning("Aucune donnée trouvée")
+            except:
+                print("passse pas")
         elif categorie=="Téléphones":
             print()
             #df=scrape_dynamic_site(url)
