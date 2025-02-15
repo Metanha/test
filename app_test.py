@@ -35,8 +35,9 @@ def get_driver():
         return webdriver.Chrome(
             service=Service(ChromeDriverManager().install()),
             options=chrome_options
-            print("entre")
+            
         )
+        print("entre")
     except WebDriverException as e:
         st.error(f"Erreur ChromeDriver: {str(e)}")
         return None
