@@ -125,11 +125,11 @@ if menu == "📊 Scraper des données":
             print("oui")
             try:
                 df = scrape_ordi(url)
-            if not df.empty:
-                st.session_state["scraped_data"] = df
-                st.dataframe(df)
-            else:
-                st.warning("Aucune donnée trouvée")
+                if not df.empty:
+                    st.session_state["scraped_data"] = df
+                    st.dataframe(df)
+                else:
+                    st.warning("Aucune donnée trouvée")
         elif categorie=="Téléphones":
             print()
             #df=scrape_dynamic_site(url)
