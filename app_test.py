@@ -8,35 +8,28 @@ from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
 import requests
 from requests import get
 
-#chmod +x /home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver
+# 🛠️ Installer Chromium et ChromeDriver (pour Streamlit Cloud)
+os.system("apt update && apt install -y chromium-chromedriver")
 
-# Supprimer l'ancienne version (au cas où)
-os.system("rm -rf /home/appuser/.wdm/drivers/chromedriver/")
-
-# Installer Chromium et ChromeDriver
-os.system("apt update")
-os.system("apt install -y chromium-chromedriver")
-
-# Définir les chemins d'accès pour Selenium
-#os.environ["CHROME_BINARY"] ="./chromedriver"
-#os.environ["webdriver.chrome.driver"] ="./chromedriver"
-
+# ✅ Vérification Selenium et WebDriver
 st.write("🔎 Vérification de Selenium et WebDriver...")
-
 try:
     service = Service(ChromeDriverManager().install())
-    print("installer")
     driver = webdriver.Chrome(service=service)
     st.success("✅ WebDriver fonctionne !")
     driver.quit()
 except Exception as e:
     st.error(f"🚨 Erreur WebDriver : {e}")
 
+# ✅ Configuration du driver Selenium
 def get_driver():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -44,31 +37,20 @@ def get_driver():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--remote-debugging-port=9222")
-    
-    # Solution cloud-compatible
-    print("avant")
+
     try:
-        return webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=chrome_options
-            
-        )
-        print("entre")
+        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     except WebDriverException as e:
-        st.error(f"Erreur ChromeDriver: {str(e)} nentrepas")
-        print("nentre pas")
+        st.error(f"Erreur ChromeDriver : {str(e)}")
         return None
-    
-    #service = Service(ChromeDriverManager().install())
-    #return webdriver.Chrome(service=service, options=chrome_options)
 
+# ✅ Scraping avec Selenium
 def scrape_ordi(url):
-    driver = None
-    try:
-        driver = get_driver()
-        if not driver:
-            return pd.DataFrame()
+    driver = get_driver()
+    if not driver:
+        return pd.DataFrame()
 
+    try:
         driver.get(url)
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "listing-card__content"))
@@ -79,91 +61,68 @@ def scrape_ordi(url):
         
         data = []
         for content in contenairs:
-            item = {
-                "Details": content.find("div", class_="listing-card__header__title").get_text(strip=True),
-                "Etat": content.find("div", class_="listing-card__header__tags").find_all("span")[0].text,
-                "Prix": content.find("div", class_="listing-card__info-bar__price").find("span", class_="listing-card__price__value").get_text(strip=True).replace("F Cfa", ""),
-                "Lien_image": content.find("img", class_="listing-card__image__resource")["src"]
-            }
-            data.append(item)
-            
+            try:
+                item = {
+                    "Details": content.find("div", class_="listing-card__header__title").get_text(strip=True),
+                    "Etat": content.find("div", class_="listing-card__header__tags").find_all("span")[0].text,
+                    "Prix": content.find("div", class_="listing-card__info-bar__price").find("span", class_="listing-card__price__value").get_text(strip=True).replace("F Cfa", ""),
+                    "Lien_image": content.find("img", class_="listing-card__image__resource")["src"]
+                }
+                data.append(item)
+            except Exception as e:
+                st.warning(f"⚠️ Erreur d'extraction : {str(e)}")
+
         return pd.DataFrame(data)
-        
+
     except Exception as e:
         st.error(f"Erreur de scraping: {str(e)}")
         return pd.DataFrame()
     finally:
-        if driver:
-            driver.quit()
+        driver.quit()
 
+# ✅ Affichage des données
 def load_(dataframe, title):
-    st.markdown("""
-    <style>
-    div.stButton {text-align:center}
-    </style>""", unsafe_allow_html=True)
-
-    #if st.button(title, key):
-    st.subheader('Display data dimension')
-    st.write('Data dimension: ' + str(dataframe.shape[0]) + ' rows and ' + str(dataframe.shape[1]) + ' columns.')
+    st.subheader(f'📊 Données : {title}')
+    st.write(f'Dimensions: {dataframe.shape[0]} lignes × {dataframe.shape[1]} colonnes')
     st.dataframe(dataframe)
 
-# Configuration de la page 
+# 🌍 Configuration de la page 
 st.set_page_config(page_title="Web Scraping App", layout="wide")
 
-# Barre latérale pour la navigation
+# 🎛️ Barre latérale pour la navigation
 menu = st.sidebar.radio("Navigation", ["📊 Scraper des données", "📈 Dashboard des données", "📝 Formulaire d'évaluation"])
 
 # 📊 **Scraper des données**
 if menu == "📊 Scraper des données":
     st.title("Scraper des données")
     
-    categorie=st.radio("Choisissez les données à scrapper ",["Ordinateurs","Téléphones","Télévision"])
-    #url = st.text_input("Entrez l'URL de la page à scraper :", "")
-    #Creation de deux colonnes pour aligner les boutons sur la même ligne  
-    col1,col2=st.columns(2)
+    categorie = st.radio("Choisissez les données à scraper :", ["Ordinateurs", "Téléphones", "Télévision"])
+    
+    col1, col2 = st.columns(2)
     with col1:
-        lance_scrap=st.button("Lancer le scraping")
+        lance_scrap = st.button("🚀 Lancer le scraping")
     with col2:
-            telecharger_donne=st.button("📥 Télécharger les données")     
-       # Sélection du nombre de pages
-    url=""
-    if categorie=="Ordinateurs":
-        url="https://www.expat-dakar.com/ordinateurs?page=1"
-        num_pages = st.sidebar.slider("Nombre de pages à scraper :", 1, 10, 1)
-    elif categorie=="Téléphones":
-        url="https://www.expat-dakar.com/telephones?page=1"
-        num_pages = st.sidebar.slider("Nombre de pages à scraper :", 1, 11, 1)
-    elif categorie=="Télévision":
-        url="https://www.expat-dakar.com/tv-home-cinema?page=1"
-        num_pages = st.sidebar.slider("Nombre de pages à scraper :", 1, 12, 1)
+        telecharger_donne = st.button("📥 Télécharger les données")     
+
+    url = ""
+    if categorie == "Ordinateurs":
+        url = "https://www.expat-dakar.com/ordinateurs?page=1"
+    elif categorie == "Téléphones":
+        url = "https://www.expat-dakar.com/telephones?page=1"
+    elif categorie == "Télévision":
+        url = "https://www.expat-dakar.com/tv-home-cinema?page=1"
     
-    if lance_scrap:            
-        if categorie == "Ordinateurs":
-            print("oui")
-            try:
-                df = scrape_ordi(url)
-                if not df.empty:
-                    st.session_state["scraped_data"] = df
-                    st.dataframe(df)
-                else:
-                    st.warning("Aucune donnée trouvée")
-            except:
-                print("passse pas")
-        elif categorie=="Téléphones":
-            print()
-            #df=scrape_dynamic_site(url)
-            #load_(df,"Téléphones")
-        elif categorie=="Télévision":
-            print()
-            #df=scrape_dynamic_site(url)
-            #load_(df,"Télévision")
-    
-     #Telecharger les données scrappées  
-    if telecharger_donne:
-        csv = df.to_csv(path_or_buf="data/donnees_scrapes.csv",index=False).encode('utf-8')
+    if lance_scrap:
+        df = scrape_ordi(url)
+        if not df.empty:
+            st.session_state["scraped_data"] = df
+            load_(df, categorie)
+        else:
+            st.warning("⚠️ Aucune donnée trouvée")
 
-
-
+    if telecharger_donne and "scraped_data" in st.session_state:
+        csv = st.session_state["scraped_data"].to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Télécharger le CSV", csv, "donnees_scrapees.csv", "text/csv")
 
 # 📈 **Dashboard des Données Scrapées**
 elif menu == "📈 Dashboard des données":
@@ -175,7 +134,7 @@ elif menu == "📈 Dashboard des données":
         # **Histogramme des Prix**
         st.subheader("📈 Distribution des Prix")
         fig, ax = plt.subplots()
-        ax.hist(df["Prix"], bins=20, color="blue", alpha=0.7)
+        ax.hist(pd.to_numeric(df["Prix"], errors="coerce").dropna(), bins=20, color="blue", alpha=0.7)
         ax.set_xlabel("Prix (F CFA)")
         ax.set_ylabel("Nombre de produits")
         ax.set_title("Distribution des prix")
@@ -183,28 +142,20 @@ elif menu == "📈 Dashboard des données":
 
         # **Répartition des Marques**
         st.subheader("🎯 Répartition des Marques")
-        fig_pie = px.pie(df, names="Marque", title="Répartition des Marques", hole=0.4)
+        fig_pie = px.pie(df, names="Etat", title="Répartition des États", hole=0.4)
         st.plotly_chart(fig_pie)
 
-        # **Comparaison des prix par marque**
-        st.subheader("💰 Comparaison des Prix par Marque")
-        fig_bar = px.bar(df, x="Marque", y="Prix", title="Prix moyen par marque", color="Marque", barmode="group")
-        st.plotly_chart(fig_bar)
-
         # **Tableau interactif avec filtres**
-        st.subheader("📜 Table des Données Filtrables")
-        marque_filter = st.multiselect("Filtrer par Marque :", df["Marque"].unique())
-        if marque_filter:
-            df = df[df["Marque"].isin(marque_filter)]
+        st.subheader("📜 Filtrer les données")
+        etat_filter = st.multiselect("Filtrer par état :", df["Etat"].unique())
+        if etat_filter:
+            df = df[df["Etat"].isin(etat_filter)]
         st.dataframe(df)
     else:
-        st.warning("Aucune donnée disponible. Faites d'abord un scraping.")
+        st.warning("⚠️ Aucune donnée disponible. Faites d'abord un scraping.")
 
-# 📝 Formulaire d'évaluation**
+# 📝 **Formulaire d'évaluation**
 elif menu == "📝 Formulaire d'évaluation":
     st.title("📝 Formulaire d'évaluation")
-    
-    #kobo_link = "<iframe src=https://ee.kobotoolbox.org/i/TOv0huae width="800" height="600"></iframe>"
-    st.markdown(f'<iframe src=https://ee.kobotoolbox.org/i/TOv0huae width="800" height="600"></iframe>', unsafe_allow_html=True)
-
-
+    kobo_link = '<iframe src="https://ee.kobotoolbox.org/i/TOv0huae" width="800" height="600"></iframe>'
+    st.markdown(kobo_link, unsafe_allow_html=True)
